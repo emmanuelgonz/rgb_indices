@@ -1,0 +1,6 @@
+rasterio==1.2.1
+numpy==1.21.4
+opencv-python==4.5.1.48
+tifffile==2021.2.26
+pandas==1.1.4
+geopandas==0.9.0
