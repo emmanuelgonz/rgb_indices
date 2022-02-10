@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Author : eg
+Author : Emmanuel Gonzalez
 Date   : 2022-02-10
-Purpose: Rock the Casbah
+Purpose: RGB indices extraction
 """
 
 import argparse
