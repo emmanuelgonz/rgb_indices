@@ -11,7 +11,7 @@ import sys
 import rasterio
 import numpy as np
 import glob
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import cv2
 import tifffile as tifi
 import pandas as pd
