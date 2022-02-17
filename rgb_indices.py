@@ -478,7 +478,7 @@ def do_RGBV13(r,g,b):
 def do_TGI(r, g, b):
     try:
         tgi = (g.astype(float)-(0.39*r.astype(float))-(0.61*b.astype(float)))
-        tgi = remove_infinite(tgi)
+#         tgi = remove_infinite(tgi)
     except:
         tgi = np.nan
 
