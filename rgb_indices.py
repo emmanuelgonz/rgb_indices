@@ -191,7 +191,7 @@ def get_detection_df(date, cyverse_public_link='https://data.cyverse.org/dav-ano
     detection_csv = pd.read_csv(cyverse_public_link).convert_dtypes()
     detection_csv['plot'] = detection_csv['plot'].astype(str).str.zfill(4)
     detection_csv = detection_csv.set_index('plot')
-    detection_csv = detection_csv[detection_csv['date']==str(date)]
+    detection_csv = detection_csv[detection_csv['date']==date]
 
     return detection_csv
 
@@ -478,7 +478,7 @@ def do_RGBV13(r,g,b):
 def do_TGI(r, g, b):
     try:
         tgi = (g.astype(float)-(0.39*r.astype(float))-(0.61*b.astype(float)))
-#         tgi = remove_infinite(tgi)
+        tgi = remove_infinite(tgi)
     except:
         tgi = np.nan
 
@@ -488,8 +488,8 @@ def do_TGI(r, g, b):
 # --------------------------------------------------
 def clip_individual_plants(plot, img, detection_csv, date):
     indices_dict = {}
-
-    for i, row in detection_csv.loc[plot].iterrows():
+    
+    for i, row in detection_csv.reset_index().query(f'plot=="{plot}"').set_index('plot').iterrows():
 
         min_x = int(row['min_x'])
         max_x = int(row['max_x'])
@@ -499,11 +499,9 @@ def clip_individual_plants(plot, img, detection_csv, date):
 
         if img.shape[2]:
             crop = img[min_y:max_y,min_x:max_x,:]
-            print(crop.shape)
 
         else:
             crop = img[min_y:max_y,min_x:max_x]
-            print(crop.shape)
 
         r, g, b = split_bands(crop)
         #tgi, mean, median, q1, q3, var, sd = create_tgi(r, g, b)
@@ -512,27 +510,27 @@ def clip_individual_plants(plot, img, detection_csv, date):
             'date': date,
             'plot': plot,
             'plant_name': plant_name,
-            'tgi': do_TGI(r, g, b)
-#             'gr': do_GR(r,g,b), 
-#             'grvi': do_GRVI(r,g,b),
-#             'rgbvi': do_RGBVI(r,g,b),
-#             'mgrvi': do_MGRVI(r,g,b),
-#             'vari': do_VARI(r,g,b),
-#             'bgi': do_BGI2(r,g,b),
-#             'gli': do_GLI(r,g,b),
-#             'exg': do_EXG(r,g,b),
-#             'ngbdi': do_NGBDI(r,g,b),
-#             'rgbv12': do_RGBV12(r,g,b),
-#             'rgbv13': do_RGBV13(r,g,b),
-#             'sndvi': do_SNDVI(r,g,b),
-#             'vdvi': do_vdvi(r,g,b),
-#             'ari1b': do_ari1b(r,g,b),
-#             'bi': do_bi(r,g,b), 
-#             'ci': do_ci(r,g,b),
-#             'rgri': do_rgri(r,g,b),
-#             'exr': do_exr(r,g,b),
-#             'exgr': do_exgr(r,g,b),
-#             'si': do_si(r,g,b)
+            'tgi': do_TGI(r, g, b),
+            'gr': do_GR(r,g,b), 
+            'grvi': do_GRVI(r,g,b),
+            'rgbvi': do_RGBVI(r,g,b),
+            'mgrvi': do_MGRVI(r,g,b),
+            'vari': do_VARI(r,g,b),
+            'bgi': do_BGI2(r,g,b),
+            'gli': do_GLI(r,g,b),
+            'exg': do_EXG(r,g,b),
+            'ngbdi': do_NGBDI(r,g,b),
+            'rgbv12': do_RGBV12(r,g,b),
+            'rgbv13': do_RGBV13(r,g,b),
+            'sndvi': do_SNDVI(r,g,b),
+            'vdvi': do_vdvi(r,g,b),
+            'ari1b': do_ari1b(r,g,b),
+            'bi': do_bi(r,g,b), 
+            'ci': do_ci(r,g,b),
+            'rgri': do_rgri(r,g,b),
+            'exr': do_exr(r,g,b),
+            'exgr': do_exgr(r,g,b),
+            'si': do_si(r,g,b)
         }
     df = pd.DataFrame.from_dict(indices_dict, orient='index')
 
@@ -588,18 +586,24 @@ def main():
 
     for plot_path in plot_list:
 
-        try:
-            plot = get_plot_number(plot_path)
-            print(f'Processing {plot}.')
-            img = open_image(plot_path)
-            df = clip_individual_plants(plot, img, detection_csv, args.date)
-            print(df)
-            result_list.append(df)
+        plot = get_plot_number(plot_path)
+        print(f'Processing {plot}.')
+        img = open_image(plot_path)
+        df = clip_individual_plants(plot, img, detection_csv, args.date)
+        result_list.append(df)
 
-            print('Processed successfully.')
-        except:
-            print(f'ERROR: Cannot process {plot}.')
-            pass
+        # try:
+        #     plot = get_plot_number(plot_path)
+        #     print(f'Processing {plot}.')
+        #     img = open_image(plot_path)
+        #     print(img.shape)
+        #     df = clip_individual_plants(plot, img, detection_csv, args.date)
+        #     result_list.append(df)
+
+        #     print(f'Processed {plot} successfully.')
+        # except:
+        #     print(f'ERROR: Cannot process {plot}.')
+        #     pass
             
     result_df = pd.concat(result_list)
     final_df = merge_detection_phenotype(result_df, detection_csv)
