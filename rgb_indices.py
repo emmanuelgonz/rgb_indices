@@ -588,9 +588,12 @@ def main():
 
         try:
             plot = get_plot_number(plot_path)
+            print(plot)
             print(f'Processing {plot}.')
             img = open_image(plot_path)
+            print(img.shape)
             df = clip_individual_plants(plot, img, detection_csv, args.date)
+            print(df)
             result_list.append(df)
 
             print('Processed successfully.')
