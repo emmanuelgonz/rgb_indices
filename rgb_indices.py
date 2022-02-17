@@ -100,7 +100,7 @@ def create_tgi(r_band, g_band, b_band):
 # --------------------------------------------------
 def get_stats(img):
     
-    # img = img[~np.isnan(img)]
+    img = img[~np.isnan(img)]
 
     mean = np.mean(img) #- 273.15
     median = np.percentile(img, 50)
@@ -488,6 +488,11 @@ def do_TGI(r, g, b):
 # --------------------------------------------------
 def clip_individual_plants(plot, img, detection_csv, date):
     indices_dict = {}
+
+    r_plot, g_plot, b_plot = split_bands(img)
+    tgi_plot, mean_plot, median_plot, q1_plot, q3_plot, var_plot, sd_plot = create_tgi(r_band=r_plot, 
+                                                                                       g_band=g_plot, 
+                                                                                       b_band=b_plot)
     
     for i, row in detection_csv.reset_index().query(f'plot=="{plot}"').set_index('plot').iterrows():
 
@@ -510,6 +515,12 @@ def clip_individual_plants(plot, img, detection_csv, date):
             'date': date,
             'plot': plot,
             'plant_name': plant_name,
+            'tgi_mean_plot': mean_plot,
+            'tgi_median_plot': median_plot,
+            'tgi_q1_plot': q1_plot,
+            'tgi_q3_plot': q3_plot,
+            'tgi_var_plot': var_plot,
+            'tgi_sd_plot': sd_plot,
             'tgi': do_TGI(r, g, b),
             'gr': do_GR(r,g,b), 
             'grvi': do_GRVI(r,g,b),
