@@ -499,9 +499,11 @@ def clip_individual_plants(plot, img, detection_csv, date):
 
         if img.shape[2]:
             crop = img[min_y:max_y,min_x:max_x,:]
+            print(crop.shape)
 
         else:
             crop = img[min_y:max_y,min_x:max_x]
+            print(crop.shape)
 
         r, g, b = split_bands(crop)
         #tgi, mean, median, q1, q3, var, sd = create_tgi(r, g, b)
@@ -588,10 +590,8 @@ def main():
 
         try:
             plot = get_plot_number(plot_path)
-            print(plot)
             print(f'Processing {plot}.')
             img = open_image(plot_path)
-            print(img.shape)
             df = clip_individual_plants(plot, img, detection_csv, args.date)
             print(df)
             result_list.append(df)
